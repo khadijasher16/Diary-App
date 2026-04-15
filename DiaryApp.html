@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Cute Diary 💖</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #ffd6e0, #cde7ff);
+            display: flex;
+            justify-content: center;
+            padding: 30px;
+            transition: 0.3s;
+        }
+
+        .dark {
+            background: #1e1e2f;
+            color: white;
+        }
+
+        .diary {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .dark .diary {
+            background: #2c2c3e;
+        }
+
+        h2 {
+            text-align: center;
+            color: #ff6f91;
+        }
+
+        textarea, select, input {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #ff6f91;
+            color: white;
+            cursor: pointer;
+        }
+
+        .entry {
+            background: #f9f9f9;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .dark .entry {
+            background: #3a3a50;
+        }
+
+        .controls {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .controls button {
+            flex: 1;
+            font-size: 12px;
+            padding: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="diary">
+    <h2>My Diary 💖</h2>
+
+    <input type="text" id="search" placeholder="Search..." onkeyup="searchEntries()">
+
+    <textarea id="note" placeholder="Write your thoughts..."></textarea>
+
+    <select id="mood">
+        <option>😊 Happy</option>
+        <option>😢 Sad</option>
+        <option>😴 Tired</option>
+        <option>😍 Excited</option>
+    </select>
+
+    <button onclick="addEntry()">Add Entry</button>
+    <button onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
+
+    <div id="entries"></div>
+</div>
+
+<script>
+let entries = JSON.parse(localStorage.getItem("diary")) || [];
+
+function saveData() {
+    localStorage.setItem("diary", JSON.stringify(entries));
+}
+
+function displayEntries() {
+    let container = document.getElementById("entries");
+    container.innerHTML = "";
+
+    entries.forEach((entry, index) => {
+        let div = document.createElement("div");
+        div.className = "entry";
+
+        div.innerHTML = `
+            <strong>${entry.mood}</strong>
+            <div>${entry.text}</div>
+            <small>${entry.date}</small>
+
+            <div class="controls">
+                <button onclick="editEntry(${index})">Edit</button>
+                <button onclick="deleteEntry(${index})">Delete</button>
+            </div>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+function addEntry() {
+    let text = document.getElementById("note").value;
+    let mood = document.getElementById("mood").value;
+
+    if (text === "") return;
+
+    entries.unshift({
+        text: text,
+        mood: mood,
+        date: new Date().toLocaleString()
+    });
+
+    saveData();
+    displayEntries();
+    document.getElementById("note").value = "";
+}
+
+function deleteEntry(index) {
+    entries.splice(index, 1);
+    saveData();
+    displayEntries();
+}
+
+function editEntry(index) {
+    let newText = prompt("Edit your entry:", entries[index].text);
+    if (newText) {
+        entries[index].text = newText;
+        saveData();
+        displayEntries();
+    }
+}
+
+function searchEntries() {
+    let search = document.getElementById("search").value.toLowerCase();
+    let filtered = entries.filter(e => e.text.toLowerCase().includes(search));
+
+    let container = document.getElementById("entries");
+    container.innerHTML = "";
+
+    filtered.forEach(entry => {
+        let div = document.createElement("div");
+        div.className = "entry";
+        div.innerHTML = `<strong>${entry.mood}</strong><div>${entry.text}</div><small>${entry.date}</small>`;
+        container.appendChild(div);
+    });
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle("dark");
+}
+
+displayEntries();
+</script>
+
+</body>
+</html>
